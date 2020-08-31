@@ -7,27 +7,18 @@ from selenium.common.exceptions import NoAlertPresentException
 import time
 import pytest
 
-@pytest.mark.login_guest
-class TestLoginFromProductPage():
-    @pytest.fixture(scope="function", autouse=True)
-    def setup(self):
-        self.product = ProductFactory(title = "Best book created by robot")
-        self.link = self.product.link
-        yield
-        self.product.delete()
+def test_guest_should_see_login_link_on_product_page(browser):
+    link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.should_be_login_link()
 
-    def test_guest_should_see_login_link_on_product_page(self, browser):
-        link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
-        self.page = ProductPage(browser, self.link)
-        page.open()
-        page.should_be_login_link()
-
-    @pytest.mark.need_review
-    def test_guest_can_go_to_login_page_from_product_page(self, browser):
-        link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
-        page = ProductPage(browser, self.link)
-        page.open()
-        page.go_to_login_page()
+@pytest.mark.need_review
+def test_guest_can_go_to_login_page_from_product_page(browser):
+    link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.go_to_login_page()
 
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1",
@@ -84,12 +75,11 @@ def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     page.should_be_basket_empty()
     page.should_be_message_empty_basket()
 
-@pytest.mark.check_list
 class TestUserAddToBasketFromProductPage():
     @pytest.fixture(scope="function", autouse=True)
     def setup(self, browser):
-        link = "http://selenium1py.pythonanywhere.com/en-gb/accounts/login/"
-        page = LoginPage(browser, link)
+        self.link = "http://selenium1py.pythonanywhere.com/en-gb/accounts/login/"
+        page = LoginPage(browser, self.link)
         page.open()
         email = str(time.time()) + "@fakemail.org"
         password = str(time.time())
